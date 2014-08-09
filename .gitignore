@@ -1,0 +1,5 @@
+# swap and backup files
+*.bak
+*~
+.*.sw?
+.sw?
