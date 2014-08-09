@@ -1,0 +1,3 @@
+* TODO provide little build-script
+  which replaces all sourced scripts with its content to distribute them w/o
+  dependency to that lib.
