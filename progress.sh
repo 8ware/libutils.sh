@@ -1,37 +1,43 @@
 #! /bin/bash
-
-LIBUTILS_PROGRESS_CURSOR_LEFT=false
-
-# TODO maybe change usage to
 #
-#   LIBUTILS_PROGRESS_PROMPT="analyzing..."
-#   progress_show idx ${#array[@]}
-#   progress_done # unsets LIBUTILS_PROGRESS_PROMPT variable
+# Usage:
 #
-# both functions accept the prompt string as optional last parameter
+#   source progress.sh
 #
-# TODO maybe pass array as reference indicated by e.g. -
-#
-#   limit=${#${2#-}[@]}
+#   LIBUTILS_PROGRESS_PROMPT="progress: "
+#   for idx in $(seq ${#array[@]}); do
+#       progress_show idx array
+#       # ...
+#   done
+#   progress_done "progress..."
 #
 
-function progress() {
-	local prompt=$1
-	local current=$2
-	local limit=$3
+#
+# progress_show  idx    files     [prompt]
+# progress_show $idx ${#files[@]} [prompt]
+# progress_show $idx    files     [prompt]
+# progress_show  idx ${#files[@]} [prompt]
+#
+function progress_show() {
+	local current=$1
+	local limit=$2
+	local prompt=$3
 
-	prompt+="$((current * 100 / limit))%"
+	grep -q '[1-9][0-9]*' <<< "$current" || eval "current=\$$current"
+	grep -q '[1-9][0-9]*' <<< "$limit" || eval "limit=\${#$limit[@]}"
+	[ "$prompt" ] || prompt=$LIBUTILS_PROGRESS_PROMPT
 
-	$LIBUTILS_PROGRESS_CURSOR_LEFT && prompt+="\r" || prompt="\r$prompt"
-
-	echo -en "${prompt}"
+	echo -en "\r${prompt}$((current * 100 / limit))%"
 }
 
+#
+# progress_done [prompt]
+#
 function progress_done() {
 	local prompt=$1
 
-	$LIBUTILS_PROGRESS_CURSOR_LEFT || prompt="\r$prompt"
+	[ "$prompt" ] || prompt=$LIBUTILS_PROGRESS_PROMPT
 
-	echo -e "${prompt}done."
+	echo -e "\r${prompt}done."
 }
 
